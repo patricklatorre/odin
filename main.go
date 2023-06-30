@@ -35,30 +35,14 @@ func main() {
 
 	// Help text helper func
 	printUsage := func() {
-		fmt.Printf("Odin %s\n\n"+
-			"Usage: odin <COMMAND> <WORLDNAME> [..OPTIONS]\n\n"+
-
-			"<COMMAND>\n"+
-			" create <world>            Creates a new server\n"+
-			" start  <world> [-p PORT]  Starts a server (default port: 2456)\n"+
-			" help                      You're looking at it\n\n",
-			Version)
-
-		// fmt.Printf("ODIN %s\n\n", Version)
-		// fmt.Printf("Usage: odin <COMMAND> <WORLDNAME> [..OPTIONS]\n\n")
-
-		// fmt.Printf("<COMMAND>")
-
-		// fmt.Printf("CREATE <WORLDNAME>\n")
-		// createCmd.PrintDefaults()
-
-		// fmt.Printf("\nSTART <WORLDNAME>\n")
-		// startCmd.PrintDefaults()
-
-		// fmt.Printf("\nOPEN <WORLDNAME>\n")
-		// openCmd.PrintDefaults()
-
-		// fmt.Printf("\nHELP\n")
+		fmt.Printf("Usage: odin <COMMAND> <WORLDNAME> [..OPTIONS]\n\n" +
+			"<COMMAND>\n" +
+			" help                        You're looking at it\n" +
+			" create <world>              Creates a new server\n" +
+			" start  <world>              Starts a server\n" +
+			"        [-port 2456]\n" +
+			"        [-password 123456]\n" +
+			"\n")
 	}
 
 	// Parse odin flags
@@ -66,8 +50,11 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	// Print help as default behavior
-	if len(args) == 0 || *flagVersion || *flagHelp {
+	// Handle version and help flags
+	if *flagVersion {
+		version()
+		os.Exit(0)
+	} else if len(args) == 0 || *flagHelp {
 		help()
 		os.Exit(0)
 	}
@@ -81,6 +68,7 @@ func main() {
 			isValidCmd = true
 		}
 	}
+
 	if !isValidCmd {
 		fmt.Println("Invalid command:", cmd)
 		os.Exit(1)
@@ -144,16 +132,15 @@ func mustSetupDirs() {
 		}
 	}
 
-	{ // Check if steamcmd.exe exists
-		exe := path.Relative("steamcmd", "steamcmd.exe")
-		exists, err := path.Exists(exe)
+	exe := path.Relative("steamcmd", "steamcmd.exe")
+	exists, err := path.Exists(exe)
+	e.Must(err)
+
+	if !exists {
+		fmt.Printf("SteamCMD not found, downloading... ")
+		err := setupSteamcmd()
 		e.Must(err)
-		if !exists {
-			fmt.Printf("SteamCMD not found, downloading... ")
-			err := setupSteamcmd()
-			e.Must(err)
-			fmt.Printf("done\n")
-		}
+		fmt.Printf("done\n")
 	}
 }
 
@@ -206,7 +193,7 @@ func setupSteamcmd() error {
 		extractedFile, err := os.Create(extractedFilePath)
 		if err != nil {
 			fmt.Printf("Could not extract the files from steamcmd.zip")
-			zipFile.Close() // Close the zip file handle
+			zipFile.Close()
 			return err
 		}
 
@@ -214,13 +201,13 @@ func setupSteamcmd() error {
 		_, err = io.Copy(extractedFile, zipFile)
 		if err != nil {
 			fmt.Printf("Could not extract the files from steamcmd.zip")
-			extractedFile.Close() // Close the extracted file handle
-			zipFile.Close()       // Close the zip file handle
+			extractedFile.Close()
+			zipFile.Close()
 			return err
 		}
 
-		extractedFile.Close() // Close the extracted file handle
-		zipFile.Close()       // Close the zip file handle
+		extractedFile.Close()
+		zipFile.Close()
 	}
 
 	// Close handles before deleting the zip file

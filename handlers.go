@@ -69,7 +69,7 @@ func create(name string) error {
 	return nil
 }
 
-// Starts
+// Starts a server
 func start(name string, port int, password string) error {
 	var (
 		serverDir = path.Relative("servers", name)
@@ -111,10 +111,11 @@ func start(name string, port int, password string) error {
 		case *exec.Error:
 			fmt.Println("Could not run the server")
 			return err
+
 		case *exec.ExitError:
-			fmt.Println("An error occurred while running the server")
-			fmt.Println("Exit code:", e.ExitCode())
+			fmt.Println("An error occurred while running the server. Exit code:", e.ExitCode())
 			return err
+
 		default:
 			fmt.Println("An error occurred while running the server")
 			return err
@@ -126,11 +127,32 @@ func start(name string, port int, password string) error {
 
 // Opens a server dir in the file explorer
 func open(name string) error {
-	fmt.Println("Open:", name)
+	serverDir := path.Relative("servers", name)
+
+	exists, err := path.Exists(serverDir)
+	if err != nil {
+		fmt.Printf("Could not check if %s exists\n", serverDir)
+		return err
+	}
+
+	if !exists {
+		fmt.Println("Server doesn't exist:", serverDir)
+		os.Exit(1)
+	}
+
+	// Windows-specific file explorer
+	cmd := exec.Command("explorer", serverDir)
+	_ = cmd.Run()
+
 	return nil
 }
 
 // Prints the help screen
 func help() {
 	flag.Usage()
+}
+
+// Prints the version
+func version() {
+	fmt.Printf("Odin %s\n", Version)
 }
