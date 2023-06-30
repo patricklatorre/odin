@@ -6,18 +6,16 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-
-	"github.com/patricklatorre/odin/path"
 )
 
 // Downloads the Valheim server files into a new server dir within servers/
-func create(name string) error {
+func Create(name string) error {
 	var (
-		serverDir   = path.Relative("servers", name)
-		steamcmdBin = path.Relative("steamcmd", "steamcmd.exe")
+		serverDir   = OdinPath("servers", name)
+		steamcmdBin = OdinPath("steamcmd", "steamcmd.exe")
 	)
 
-	exists, err := path.Exists(serverDir)
+	exists, err := Exists(serverDir)
 	if err != nil {
 		fmt.Printf("Could not check if %s exists\n", serverDir)
 		return err
@@ -54,11 +52,13 @@ func create(name string) error {
 		case *exec.Error:
 			fmt.Println("Could not create the server")
 			return err
+
 		case *exec.ExitError:
 			if e.ExitCode() != 7 { // Known bug
 				fmt.Println("An error occurred while running steamcmd")
 				return err
 			}
+
 		default:
 			fmt.Println("An error occurred while running steamcmd")
 			return err
@@ -70,13 +70,13 @@ func create(name string) error {
 }
 
 // Starts a server
-func start(name string, port int, password string) error {
+func Start(name string, port int, password string) error {
 	var (
-		serverDir = path.Relative("servers", name)
-		serverBin = path.Relative("servers", name, "valheim_server.exe")
+		serverDir = OdinPath("servers", name)
+		serverBin = OdinPath("servers", name, "valheim_server.exe")
 	)
 
-	exists, err := path.Exists(serverDir)
+	exists, err := Exists(serverDir)
 	if err != nil {
 		return err
 	}
@@ -126,10 +126,10 @@ func start(name string, port int, password string) error {
 }
 
 // Opens a server dir in the file explorer
-func open(name string) error {
-	serverDir := path.Relative("servers", name)
+func Open(name string) error {
+	serverDir := OdinPath("servers", name)
 
-	exists, err := path.Exists(serverDir)
+	exists, err := Exists(serverDir)
 	if err != nil {
 		fmt.Printf("Could not check if %s exists\n", serverDir)
 		return err
@@ -140,19 +140,17 @@ func open(name string) error {
 		os.Exit(1)
 	}
 
-	// Windows-specific file explorer
+	// Only for windows
 	cmd := exec.Command("explorer", serverDir)
 	_ = cmd.Run()
 
 	return nil
 }
 
-// Prints the help screen
-func help() {
+func PrintHelp() {
 	flag.Usage()
 }
 
-// Prints the version
-func version() {
+func PrintVersion() {
 	fmt.Printf("Odin %s\n", Version)
 }

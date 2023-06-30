@@ -1,20 +1,22 @@
-package path
+package main
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	e "github.com/patricklatorre/odin/error"
 )
 
-var OdinExePath string
-
-// Initializes OdinExePath. All paths used by Odin will be relative to this.
+// Initializes OdinExePath
 func init() {
 	exePath, err := os.Executable()
-	e.Must(err)
+	Must(err)
 	OdinExePath = filepath.Dir(exePath)
+}
+
+// Gets a relative path from the Odin executable
+func OdinPath(paths ...string) string {
+	targetPath := filepath.Join(append([]string{OdinExePath}, paths...)...)
+	return targetPath
 }
 
 // Helper func to check if file/dir Exists
@@ -30,10 +32,4 @@ func Exists(path string) (bool, error) {
 
 	fmt.Printf("Could not check if %s exists", path)
 	return false, err
-}
-
-// Gets a relative path from the Odin executable
-func Relative(paths ...string) string {
-	targetPath := filepath.Join(append([]string{OdinExePath}, paths...)...)
-	return targetPath
 }
