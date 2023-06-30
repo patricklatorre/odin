@@ -27,29 +27,38 @@ func main() {
 
 	// Start flags
 	startCmd := flag.NewFlagSet("start", flag.ExitOnError)
-	startPort := startCmd.Int("port", 55555, "")
-	startPassword := startCmd.String("password", "1234", "")
+	startPort := startCmd.Int("port", 2456, "")
+	startPassword := startCmd.String("password", "123456", "")
 
 	// Open flags
 	openCmd := flag.NewFlagSet("open", flag.ExitOnError)
 
 	// Help text helper func
 	printUsage := func() {
-		fmt.Printf("ODIN %s\n\n", Version)
-		fmt.Printf("Usage: odin <command> <server_name> [...params]\n\n")
+		fmt.Printf("Odin %s\n\n"+
+			"Usage: odin <COMMAND> <WORLDNAME> [..OPTIONS]\n\n"+
 
-		fmt.Printf("-------- Commands --------\n\n")
+			"<COMMAND>\n"+
+			" create <world>            Creates a new server\n"+
+			" start  <world> [-p PORT]  Starts a server (default port: 2456)\n"+
+			" help                      You're looking at it\n\n",
+			Version)
 
-		fmt.Printf("CREATE <SERVER_NAME>\n")
-		createCmd.PrintDefaults()
+		// fmt.Printf("ODIN %s\n\n", Version)
+		// fmt.Printf("Usage: odin <COMMAND> <WORLDNAME> [..OPTIONS]\n\n")
 
-		fmt.Printf("\nSTART <SERVER_NAME>\n")
-		startCmd.PrintDefaults()
+		// fmt.Printf("<COMMAND>")
 
-		fmt.Printf("\nOPEN <SERVER_NAME>\n")
-		openCmd.PrintDefaults()
+		// fmt.Printf("CREATE <WORLDNAME>\n")
+		// createCmd.PrintDefaults()
 
-		fmt.Printf("\nHELP\n")
+		// fmt.Printf("\nSTART <WORLDNAME>\n")
+		// startCmd.PrintDefaults()
+
+		// fmt.Printf("\nOPEN <WORLDNAME>\n")
+		// openCmd.PrintDefaults()
+
+		// fmt.Printf("\nHELP\n")
 	}
 
 	// Parse odin flags
@@ -60,6 +69,7 @@ func main() {
 	// Print help as default behavior
 	if len(args) == 0 || *flagVersion || *flagHelp {
 		help()
+		os.Exit(0)
 	}
 
 	// Validate command
@@ -80,6 +90,7 @@ func main() {
 	switch cmd {
 	case "help":
 		help()
+		os.Exit(0)
 	}
 
 	// Subcommands expect at least 2 non-flag args

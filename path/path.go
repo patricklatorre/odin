@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	e "github.com/patricklatorre/odin/error"
 )
 
 var OdinExePath string
@@ -11,10 +13,7 @@ var OdinExePath string
 // Initializes OdinExePath. All paths used by Odin will be relative to this.
 func init() {
 	exePath, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-
+	e.Must(err)
 	OdinExePath = filepath.Dir(exePath)
 }
 

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 
 	"github.com/patricklatorre/odin/path"
 )
 
+// Downloads the Valheim server files into a new server dir within servers/
 func create(name string) error {
 	var (
 		serverDir   = path.Relative("servers", name)
@@ -67,17 +69,68 @@ func create(name string) error {
 	return nil
 }
 
+// Starts
 func start(name string, port int, password string) error {
-	fmt.Println("Start:", name, port, password)
+	var (
+		serverDir = path.Relative("servers", name)
+		serverBin = path.Relative("servers", name, "valheim_server.exe")
+	)
+
+	exists, err := path.Exists(serverDir)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		fmt.Printf("Server doesn't exist: %s\n", serverDir)
+		os.Exit(1)
+	}
+
+	// Required by steamcmd
+	os.Setenv("SteamAppId", "892970")
+
+	cmd := exec.Command(
+		serverBin,
+		"-nographics",
+		"-batchmode",
+		"-name", name,
+		"-world", name,
+		"-port", strconv.Itoa(port),
+		"-password", password,
+		"-savedir", serverDir)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	// Valheim process doesn't terminate automatically
+	fmt.Println("Tip: Press CTRL+C to save and quit server")
+
+	if err := cmd.Run(); err != nil {
+		switch e := err.(type) {
+		case *exec.Error:
+			fmt.Println("Could not run the server")
+			return err
+		case *exec.ExitError:
+			fmt.Println("An error occurred while running the server")
+			fmt.Println("Exit code:", e.ExitCode())
+			return err
+		default:
+			fmt.Println("An error occurred while running the server")
+			return err
+		}
+	}
+
 	return nil
 }
 
+// Opens a server dir in the file explorer
 func open(name string) error {
 	fmt.Println("Open:", name)
 	return nil
 }
 
+// Prints the help screen
 func help() {
 	flag.Usage()
-	os.Exit(0)
 }
