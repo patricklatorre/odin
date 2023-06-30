@@ -38,6 +38,7 @@ func main() {
 		fmt.Printf("Usage: odin <COMMAND> <WORLDNAME> [..OPTIONS]\n\n" +
 			"<COMMAND>\n" +
 			" help                        You're looking at it\n" +
+			" open   <world>              Opens the server in explorer\n" +
 			" create <world>              Creates a new server\n" +
 			" start  <world>              Starts a server\n" +
 			"        [-port 2456]\n" +
